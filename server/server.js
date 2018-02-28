@@ -19,11 +19,26 @@ app.use(express.static(publicPath));
 io.on('connection', function(socket){ //server is listening to a connection event
     console.log('new user connected');
 
-    socket.emit('newEmail',{from:'feven'});
-
-    socket.on('createEmail', function(msg){
-        console.log('createEmail', msg);
+    socket.emit('newUser',{
+        from:'Admin',
+        text: 'Welcome to chat app',
+        createdAt:new Date().getTime()
     });
+    // socket.on('createMsg', function(msg){    
+    //     console.log('creatMsg', msg)      //listen for msg from any client that is connected
+    //     // io.emit('newMsg',{       //emit the msg to every client that is connected
+    //     //     from:msg.from,
+    //     //     text:msg.text,
+    //     //     createdAt: new Date().getTime()
+    //     // });
+    // });
+        socket.broadcast.emit('newMsg',{  //emit the msg to every client connected but the one sending
+            from:'Admin',
+            text:'Newuser joined',
+            createdAt: new Date().getTime()
+        });
+
+    
     socket.on('disconnect',function(){ //server is listening to a disconnect event
         console.log('user disconnected');
     });
