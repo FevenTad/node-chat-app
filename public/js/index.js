@@ -2,7 +2,7 @@
      var socket = io(); //var socket is defined here
      socket.on('connect', function(){ //socket listens for a connect event
          console.log('connected to server');
-
+   //we want emit the event as soon as the client is connected
          socket.emit('createEmail',{to:'fev'});
      });
      socket.on('disconnect', function(){ //socket listens for a disconnect event
