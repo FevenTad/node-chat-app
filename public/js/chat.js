@@ -1,5 +1,5 @@
     var socket = io(); //var socket is defined here
-    function scrollToBottom () {
+    function scrollToBottom () {   //autoscroll added
         // Selectors
         var messages = jQuery('#messages');
         var newMessage = messages.children('li:last-child')
