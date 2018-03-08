@@ -3,7 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www"
+    "start": "node ./bin/www",
+    "test": "mocha server/**/*.test.js",
+    "test-watch": "nodemon --exec \"npm test\""
   },
   "dependencies": {
     "body-parser": "^1.18.2",
@@ -41,6 +43,7 @@
     "grunt-hashres": "^0.4.1",
     "grunt-lint-pattern": "^0.1.4",
     "lodash": "^4.17.5",
+    "mocha": "^1.21.5",
     "restler": "^3.4.0",
     "zombie": "^5.0.7"
   }
