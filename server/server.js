@@ -5,12 +5,16 @@ const http= require('http');
 var express = require('express');
 var app = express();
 const socketIO=require('socket.io');
+
 var {generator} = require('./utils/message.js');
 var {isRealString} = require('./utils/validation.js');
+var {Users} = require('./utils/users');
+
 const publicPath=path.join(__dirname, '../public');
 const port = process.env.PORT || 3000;
 var server =http.createServer(app); 
 var io = socketIO(server); // integrtating socket with the server
+var users = new Users();
 
 app.use(express.static(publicPath));
 //we bring the socket var from the above middleware. 
@@ -24,18 +28,30 @@ io.on('connection', function(socket){ //server is listening to a connection even
          if(!isRealString(params.name) || !isRealString(params.room)){
              callback('name and rooms required');
          }
-         socket.join(params.room);
-         socket.emit('newMsg',generator('Admin', 'welcome to the app'));
-         socket.broadcast.to(params.room).emit('newMsg',generator('Admin', `${params.name} has joined`));
-
-         callback();
+         else{
+            socket.join(params.room);
+            users.removeUser(socket.id);
+            users.addUser(socket.id, params.name, params.room);
+            io.to(params.room).emit('updateList', users.getUsersList(params.room));
+            socket.emit('newMsg',generator('Admin', 'welcome to the app'));
+            socket.broadcast.to(params.room).emit('newMsg',generator('Admin', `${params.name} has joined`));
+            //.to() is used to address a specific group of people
+            callback();
+         }
+         
      });
     socket.on('crtMsg',function(msg,callback){  //after crtMsg is listened a callback has
-        console.log('newMsg',msg);              //to be sent back to the emitter
-        io.emit('newMsg', generator(msg.from,msg.text));
+        var user = users.getUser(socket.id);              //to be sent back to the emitter
+        if(user && isRealString(msg.text)){
+            io.to(user.room).emit('newMsg', generator(user.name,msg.text));
+        }
+        
         callback();
     });
     socket.on('disconnect',function(){ //server is listening to a disconnect event
+        var user = users.removeUser(socket.id);
+        io.to(user.room).emit('updateList', users.getUsersList(user.room));
+        io.to(user.room).emit('newMsg',generator('Admin', `${user.name} has left the room.`))
         console.log('user disconnected');
     });
 

@@ -32,7 +32,13 @@
      socket.on('disconnect', function(){ //socket listens for a disconnect event
          console.log('disconnected');
      });
-
+     socket.on('updateList', (users)=>{
+        var ol = jQuery('<ol></ol>');
+        users.forEach((user) => {
+            ol.append(jQuery('<li></li>').text(user));
+        });
+        jQuery('#users').html(ol);
+    });
      socket.on('newMsg', function(Msg){ //socket listens to a custom event called newEmail
         var formatedtime = moment(Msg.createdAt).format('h:mm a');
         var template = jQuery('#message-template').html();
@@ -47,7 +53,6 @@
     jQuery('#msgform').on('submit',(e)=>{ //form listens to a submit event
          e.preventDefault();              //override the default
          socket.emit('crtMsg',{
-             from:'User',
              text:textbox.val()
          }, ()=>{
             textbox.val('');
